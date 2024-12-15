@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:latest
+    container_name: consumer-postgres
+    ports:
+      - "5430:5432"
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: consumer_db
+    volumes:
+      - consumer-postgres_data:/var/lib/postgresql/data
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+volumes:
+  consumer-postgres_data:

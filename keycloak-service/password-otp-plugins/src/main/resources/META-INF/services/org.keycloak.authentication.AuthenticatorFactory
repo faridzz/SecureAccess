@@ -1,0 +1,3 @@
+com.paisley.provider.pathauthenticator.CustomUsernamePasswordFormFactory
+com.paisley.provider.authenticator.SmsOtpAuthenticatorFactory
+#com.paisley.provider.authenticator.SmsOtpAuthenticatorHtmlLessFactory

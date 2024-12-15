@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>digital.paisley</groupId>
+    <artifactId>project-parent</artifactId>
+    <version>1.0.0</version>
+    <packaging>pom</packaging>
+    <name>Parent Project</name>
+    <description>Modular Parent Project</description>
+
+    <modules>
+        <module>eureka-service</module>
+        <module>api-gateway</module>
+        <module>consumer-service</module>
+        <module>producer-service</module>
+        <module>product-service</module>
+    </modules>
+
+    <properties>
+        <java.version>17</java.version>
+        <spring-boot.version>3.4.0</spring-boot.version>
+        <spring-cloud.version>2024.0.0</spring-cloud.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- Spring Boot Dependencies -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-parent</artifactId>
+                <version>${spring-boot.version}</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
+            <!-- Spring Cloud Dependencies -->
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>

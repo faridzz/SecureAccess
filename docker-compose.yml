@@ -1,0 +1,118 @@
+services:
+  # Keycloak service
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    container_name: keycloak
+    command:
+      - start-dev
+    environment:
+      JAVA_OPTS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:8787
+      KC_LOG_LEVEL: DEBUG
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      KC_DB: postgres
+      KC_DB_URL_HOST: postgres-keycloak
+      KC_DB_URL_PORT: 5432
+      KC_DB_URL_DATABASE: ${POSTGRES_DB}
+      KC_DB_USERNAME: ${POSTGRES_USER}
+      KC_DB_PASSWORD: ${POSTGRES_PASSWORD}
+      KC_DB_SCHEMA: public
+      OTP_SERVER_ADDRESS: ${OTP_SERVER_ADDRESS}
+      OTP_SERVER_PORT: ${OTP_SERVER_PORT}
+      OTP_CONNECTION_TIMEOUT: ${OTP_CONNECTION_TIMEOUT}
+      OTP_DIGITS: ${OTP_DIGITS}
+      OTP_LENGTH: ${OTP_LENGTH}
+      OTP_EXPIRY_TIME: ${OTP_EXPIRY_TIME}
+      OTP_CLEANUP_INTERVAL: ${OTP_CLEANUP_INTERVAL}
+      OTP_SECRET_KEY: ${OTP_SECRET_KEY}
+    ports:
+      - "9090:8080"
+    volumes:
+      - ./keycloak-service/keycloak-files/plugins:/opt/keycloak/providers
+      - ./keycloak-service/keycloak-files/themes:/opt/keycloak/themes
+    networks:
+      - keycloak_network
+    depends_on:
+      - postgres-keycloak
+
+  # PostgreSQL for Keycloak
+  postgres-keycloak:
+    image: postgres
+    volumes:
+      - keycloak-postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    networks:
+      - keycloak_network
+    ports:
+      - ${POSTGRES_PORT}:5432
+
+  # PostgreSQL for Consumer service
+  postgres-consumer:
+    image: postgres:latest
+    container_name: consumer-postgres
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: consumer_db
+    ports:
+      - "5430:5432"
+    volumes:
+      - consumer-postgres_data:/var/lib/postgresql/data
+      - ./configs/sql/consumer.sql:/docker-entrypoint-initdb.d/init.sql
+    depends_on:
+      - keycloak
+    networks:
+      - keycloak_network
+
+  # PostgreSQL for Producer service
+  postgres-producer:
+    image: postgres:latest
+    container_name: producer-postgres
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: producer_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - producer-postgres_data:/var/lib/postgresql/data
+      - ./configs/sql/producer.sql:/docker-entrypoint-initdb.d/init.sql
+    depends_on:
+      - keycloak
+    networks:
+      - keycloak_network
+
+  # PostgreSQL for Product service
+  postgres-product:
+    image: postgres:latest
+    container_name: product-postgres
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: product_db
+    ports:
+      - "5434:5432"
+    volumes:
+      - product-postgres_data:/var/lib/postgresql/data
+      - ./configs/sql/product.sql:/docker-entrypoint-initdb.d/init.sql
+    depends_on:
+      - keycloak
+    networks:
+      - keycloak_network
+
+volumes:
+  consumer-postgres_data:
+    driver: local
+  producer-postgres_data:
+    driver: local
+  product-postgres_data:
+    driver: local
+  keycloak-postgres_data:
+    driver: local
+
+networks:
+  keycloak_network:
+    driver: bridge

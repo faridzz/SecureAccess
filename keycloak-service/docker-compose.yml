@@ -1,0 +1,60 @@
+version: '3.7'
+
+services:
+  postgres:
+    image: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    networks:
+      - keycloak_network
+    ports:
+      - ${POSTGRES_PORT}:5432
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    command:
+      - start-dev
+    environment:
+      JAVA_OPTS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:8787
+      KC_LOG_LEVEL: DEBUG
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      KC_DB: postgres
+      KC_DB_URL_HOST: postgres
+      KC_DB_URL_PORT: 5432
+      KC_DB_URL_DATABASE: ${POSTGRES_DB}
+      KC_DB_USERNAME: ${POSTGRES_USER}
+      KC_DB_PASSWORD: ${POSTGRES_PASSWORD}
+      KC_DB_SCHEMA: public
+      # Variables for OTPSender configuration
+      OTP_SERVER_ADDRESS: ${OTP_SERVER_ADDRESS}
+      OTP_SERVER_PORT: ${OTP_SERVER_PORT}
+      OTP_CONNECTION_TIMEOUT: ${OTP_CONNECTION_TIMEOUT}
+      # Variables for OTPGenerator configuration
+      OTP_DIGITS: ${OTP_DIGITS}
+      OTP_LENGTH: ${OTP_LENGTH}
+      OTP_EXPIRY_TIME: ${OTP_EXPIRY_TIME}
+      OTP_CLEANUP_INTERVAL: ${OTP_CLEANUP_INTERVAL}
+      # Variables for security configuration
+      OTP_SECRET_KEY: ${OTP_SECRET_KEY}
+    ports:
+      - 9090:8080
+    depends_on:
+      - postgres
+    networks:
+      - keycloak_network
+    volumes:
+      - ./keycloak-files/plugins:/opt/keycloak/providers
+      - ./keycloak-files/themes:/opt/keycloak/themes
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  keycloak_network:
+    driver: bridge
