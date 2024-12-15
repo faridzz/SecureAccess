@@ -25,11 +25,12 @@ SecureAccess is a microservices-based project designed for secure user authentic
 1. Clone the repository:
    ```bash
    git clone https://github.com/username/SecureAccess.git
-   Navigate to the project directory:
-
-cd SecureAccess
-
-Start the services using Docker Compose:
-
-docker-compose up --build
-
+   
+2. Navigate to the project directory:
+   ```bash
+   cd SecureAccess
+   ```
+3. Start the services using Docker Compose:
+   ```bash
+   docker-compose up --build
+   ```
